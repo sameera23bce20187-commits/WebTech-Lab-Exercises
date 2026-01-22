@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time User Activity Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .log {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 250px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .warning {
+            color: red;
+            font-weight: bold;
+        }
+        button {
+            margin-top: 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Real-Time User Activity Monitor</h2>
+
+<input type="text" placeholder="Click or type here" />
+<button>Sample Button</button>
+
+<div class="log" id="activityLog"></div>
+
+<p class="warning" id="warningMsg"></p>
+
+<button onclick="resetLog()">Reset Log</button>
+<button onclick="exportLog()">Export Log</button>
+
+<script src="Exercise4.js"></script>
+</body>
+</html>

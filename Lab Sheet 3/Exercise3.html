@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Survey</title>
+    <style>
+        /* --- USER PROVIDED CSS --- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .main-container {
+            background-color: white;
+            width: 400px; /* Fixed width for simplicity */
+            margin: 0 auto; /* Centers the box */
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        /* Question Styling */
+        .form-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        label {
+            display: block; /* Makes label take its own line */
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Radio button specific styling */
+        .radio-group {
+            margin-top: 5px;
+        }
+        .radio-option {
+            margin-right: 15px;
+            font-weight: normal;
+        }
+
+        /* The Submit Button */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745; /* Green */
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none; /* This hides elements completely */
+        }
+
+        .error-text {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none; /* Hidden by default */
+        }
+        
+        /* Highlight invalid fields */
+        .invalid-input {
+            border: 1px solid red !important;
+            background-color: #fff0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h2>Customer Survey</h2>
+        <form id="dynamicForm">
+            <div id="questionsContainer">
+                </div>
+            
+            <button type="submit" id="submitBtn">Submit Survey</button>
+        </form>
+    </div>
+
+    <script>
+        // 1. Define the HTML Structure for Questions
+        // We inject this via JS to simulate a dynamic application
+        const formContent = `
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" id="age" min="10" max="100" placeholder="e.g. 25">
+                <div class="error-text">Age is required.</div>
+            </div>
+
+            <div class="form-group">
+                <label>Current Status</label>
+                <select id="roleSelector">
+                    <option value="">-- Select Status --</option>
+                    <option value="student">Student</option>
+                    <option value="employed">Employed</option>
+                    <option value="retired">Retired</option>
+                </select>
+                <div class="error-text">Please select a role.</div>
+            </div>
+
+            <div class="form-group hidden" id="studentSection">
+                <label>University Name</label>
+                <input type="text" id="uniName" placeholder="e.g. Harvard">
+                <div class="error-text">University name required.</div>
+            </div>
+
+            <div class="form-group hidden" id="jobSection">
+                <label>Company Name</label>
+                <input type="text" id="companyName" placeholder="e.g. Google">
+                <div class="error-text">Company name required.</div>
+            </div>
+
+            <div class="form-group">
+                <label>Satisfaction Level</label>
+                <div class="radio-group">
+                    <label class="radio-option"><input type="radio" name="satisfaction" value="high"> High</label>
+                    <label class="radio-option"><input type="radio" name="satisfaction" value="medium"> Medium</label>
+                    <label class="radio-option"><input type="radio" name="satisfaction" value="low"> Low</label>
+                </div>
+                <div class="error-text">Please rate us.</div>
+            </div>
+
+            <div class="form-group hidden" id="complaintSection">
+                <label>Date of Incident</label>
+                <input type="date" id="incidentDate">
+                <div class="error-text">Date required for complaints.</div>
+            </div>
+        `;
+
+        // 2. Inject HTML
+        document.getElementById('questionsContainer').innerHTML = formContent;
+
+        // 3. Select Elements for Logic
+        const roleSelector = document.getElementById('roleSelector');
+        const studentSection = document.getElementById('studentSection');
+        const jobSection = document.getElementById('jobSection');
+        
+        const satisfactionRadios = document.getElementsByName('satisfaction');
+        const complaintSection = document.getElementById('complaintSection');
+        
+        const form = document.getElementById('dynamicForm');
+
+        // 4. LOGIC: Role Change Listener
+        roleSelector.addEventListener('change', function() {
+            const role = this.value;
+            
+            // Hide both first
+            studentSection.classList.add('hidden');
+            jobSection.classList.add('hidden');
+
+            // Show specific based on selection
+            if(role === 'student') {
+                studentSection.classList.remove('hidden');
+            } else if (role === 'employed') {
+                jobSection.classList.remove('hidden');
+            }
+        });
+
+        // 5. LOGIC: Satisfaction Change Listener
+        satisfactionRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if(this.value === 'low') {
+                    complaintSection.classList.remove('hidden');
+                } else {
+                    complaintSection.classList.add('hidden');
+                }
+            });
+        });
+
+        // 6. VALIDATION on Submit
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Stop page reload
+            let isValid = true;
+
+            // Helper to show error
+            const validateField = (id) => {
+                const el = document.getElementById(id);
+                // Check if element exists and is NOT hidden (we only validate visible fields)
+                if (el && !el.closest('.hidden')) {
+                    if(el.value.trim() === "") {
+                        el.classList.add('invalid-input');
+                        el.nextElementSibling.style.display = "block"; // Show error text
+                        isValid = false;
+                    } else {
+                        el.classList.remove('invalid-input');
+                        el.nextElementSibling.style.display = "none";
+                    }
+                }
+            };
+
+            // Validate Static Fields
+            validateField('age');
+            validateField('roleSelector');
+
+            // Validate Dynamic Fields (Logic checks if they are visible inside function)
+            validateField('uniName');     // Only validates if studentSection is visible
+            validateField('companyName'); // Only validates if jobSection is visible
+            validateField('incidentDate');// Only validates if complaintSection is visible
+
+            // Special check for Radio Buttons
+            let radioValid = false;
+            satisfactionRadios.forEach(r => { if(r.checked) radioValid = true; });
+            const radioGroup = document.querySelector('.radio-group');
+            if(!radioValid) {
+                radioGroup.nextElementSibling.style.display = "block";
+                isValid = false;
+            } else {
+                radioGroup.nextElementSibling.style.display = "none";
+            }
+
+            // Final Result
+            if(isValid) {
+                alert("Survey Submitted Successfully!");
+                form.reset();
+                // Hide dynamic sections again
+                studentSection.classList.add('hidden');
+                jobSection.classList.add('hidden');
+                complaintSection.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

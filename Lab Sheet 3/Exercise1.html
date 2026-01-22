@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+       
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box; /* Keeps padding inside width */
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Validation Colors */
+        input.invalid { border-color: red; background-color: #fff0f0; }
+        input.valid { border-color: green; }
+
+        /* Error Text */
+        .error-msg {
+            color: red;
+            font-size: 12px;
+            display: none; /* Hidden by default */
+        }
+
+        .visible { display: block; }
+
+        /* Logic Utility */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <h2>Register</h2>
+    <form id="regForm">
+        
+        <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role">
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Administrator</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="username">Full Name</label>
+            <input type="text" id="username">
+            <span class="error-msg">Name is required.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email">
+            <span class="error-msg">Invalid email.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="age">Age</label>
+            <input type="number" id="age">
+            <span class="error-msg">Age requirement not met.</span>
+        </div>
+
+        <div class="form-group" id="skillsGroup">
+            <label for="skills">Skills</label>
+            <input type="text" id="skills" placeholder="Java, Python, etc.">
+            <span class="error-msg">Please add skills.</span>
+        </div>
+
+        <div class="form-group hidden" id="adminKeyGroup">
+            <label for="adminKey">Admin Secret Key</label>
+            <input type="password" id="adminKey">
+            <span class="error-msg">Wrong key.</span>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password">
+            <span class="error-msg">Password too weak.</span>
+            <small id="passHint" style="font-size: 11px; color: #666;">Min 6 chars</small>
+        </div>
+
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword">
+            <span class="error-msg">Passwords don't match.</span>
+        </div>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <script src="script.js"></script>
+</body>
+</html>

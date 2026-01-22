@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Job Application Portal</title>
+    <style>
+        /* --- CSS PROVIDED BY USER --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+        }
+
+        .wizard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .wizard-header h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            height: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #4CAF50;
+            height: 100%;
+            width: 25%;
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        .stage-indicator {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .wizard-content {
+            padding: 40px;
+            min-height: 350px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
+        .form-group input[type="url"],
+        .form-group input[type="number"],
+        .form-group input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input.error {
+            border-color: #f44336;
+        }
+
+        .error-message {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .wizard-navigation {
+            padding: 20px 40px;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .review-section {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .review-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .review-item {
+            display: flex;
+            margin-bottom: 12px;
+            padding: 8px 0;
+        }
+
+        .review-label {
+            font-weight: 600;
+            color: #555;
+            width: 180px;
+            flex-shrink: 0;
+        }
+
+        .review-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 600px) {
+            .wizard-content {
+                padding: 25px;
+            }
+
+            .wizard-navigation {
+                padding: 15px 25px;
+            }
+
+            .review-item {
+                flex-direction: column;
+            }
+
+            .review-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="wizard-header">
+            <h1>Tech Job Application</h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="stage-indicator">
+                <span id="stageText">Stage 1 of 4: Identity Verification</span>
+            </div>
+        </div>
+
+        <div class="wizard-content" id="wizardContent">
+            </div>
+
+        <div class="wizard-navigation">
+            <button id="prevBtn" class="btn btn-secondary" style="display: none;">Previous</button>
+            <button id="nextBtn" class="btn btn-primary">Next Step</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STORE ---
+        const totalSteps = 4;
+        let currentStep = 1;
+        
+        // This object stores all user inputs temporarily
+        let formData = {
+            fullName: "",
+            email: "",
+            phone: "",
+            github: "",
+            experience: "",
+            skills: []
+        };
+
+        // --- DOM ELEMENTS ---
+        const contentDiv = document.getElementById('wizardContent');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const progressBar = document.getElementById('progressBar');
+        const stageText = document.getElementById('stageText');
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderStep(currentStep);
+            updateUI();
+        });
+
+        // --- NAVIGATION HANDLERS ---
+        nextBtn.addEventListener('click', () => {
+            // Validate before moving
+            if (validateStep(currentStep)) {
+                saveData(currentStep); // Save inputs to formData
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    renderStep(currentStep);
+                    updateUI();
+                } else {
+                    alert("Application Submitted Successfully!\nCheck Console for Data.");
+                    console.log(formData);
+                }
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                renderStep(currentStep);
+                updateUI();
+            }
+        });
+
+        // --- RENDER LOGIC ---
+        function renderStep(step) {
+            let html = '';
+
+            switch(step) {
+                case 1:
+                    html = `
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="fullName" value="${formData.fullName}" placeholder="John Doe">
+                            <div class="error-message">Name is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="email" value="${formData.email}" placeholder="john@example.com">
+                            <div class="error-message">Valid email is required.</div>
+                        </div>
+                    `;
+                    stageText.innerText = "Stage 1 of 4: Identity Verification";
+                    break;
+
+                case 2:
+                    html = `
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="phone" value="${formData.phone}" placeholder="1234567890">
+                            <div class="error-message">10-digit phone number required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>GitHub / Portfolio URL</label>
+                            <input type="url" id="github" value="${formData.github}" placeholder="https://github.com/john">
+                            <div class="error-message">Valid URL required (start with http/s).</div>
+                        </div>
+                    `;
+                    stageText.innerText = "Stage 2 of 4: Contact Details";
+                    break;
+
+                case 3:
+                    html = `
+                        <div class="form-group">
+                            <label>Years of Experience</label>
+                            <input type="number" id="experience" value="${formData.experience}" placeholder="e.g., 2">
+                            <div class="error-message">Experience is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Technical Skills (Select at least one)</label>
+                            <div class="checkbox-group" id="skillsGroup">
+                                <div class="checkbox-item"><input type="checkbox" value="JavaScript" ${formData.skills.includes('JavaScript') ? 'checked' : ''}><label>JavaScript</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="Python" ${formData.skills.includes('Python') ? 'checked' : ''}><label>Python</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="React" ${formData.skills.includes('React') ? 'checked' : ''}><label>React</label></div>
+                                <div class="checkbox-item"><input type="checkbox" value="Node.js" ${formData.skills.includes('Node.js') ? 'checked' : ''}><label>Node.js</label></div>
+                            </div>
+                            <div class="error-message" id="skillError">Please select at least one skill.</div>
+                        </div>
+                    `;
+                    stageText.innerText = "Stage 3 of 4: Skills Assessment";
+                    break;
+
+                case 4:
+                    // Render Review Page using data from formData
+                    const skillsHtml = formData.skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+                    html = `
+                        <div class="review-section">
+                            <h3>Identity</h3>
+                            <div class="review-item"><span class="review-label">Name:</span><span class="review-value">${formData.fullName}</span></div>
+                            <div class="review-item"><span class="review-label">Email:</span><span class="review-value">${formData.email}</span></div>
+                        </div>
+                        <div class="review-section">
+                            <h3>Contact</h3>
+                            <div class="review-item"><span class="review-label">Phone:</span><span class="review-value">${formData.phone}</span></div>
+                            <div class="review-item"><span class="review-label">Portfolio:</span><span class="review-value">${formData.github}</span></div>
+                        </div>
+                        <div class="review-section">
+                            <h3>Skills</h3>
+                            <div class="review-item"><span class="review-label">Experience:</span><span class="review-value">${formData.experience} Years</span></div>
+                            <div class="review-item"><span class="review-label">Tech Stack:</span><div class="skills-list">${skillsHtml}</div></div>
+                        </div>
+                    `;
+                    stageText.innerText = "Stage 4 of 4: Review & Submit";
+                    break;
+            }
+
+            contentDiv.innerHTML = html;
+        }
+
+        // --- UI UPDATER ---
+        function updateUI() {
+            // Update Progress Bar
+            const percentage = (currentStep / totalSteps) * 100;
+            progressBar.style.width = `${percentage}%`;
+
+            // Update Buttons
+            if (currentStep === 1) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+
+            if (currentStep === totalSteps) {
+                nextBtn.innerText = "Submit Application";
+                nextBtn.classList.replace('btn-primary', 'btn-success'); // Assuming green styling logic
+                nextBtn.style.backgroundColor = "#28a745"; // Manual override if class doesn't exist
+            } else {
+                nextBtn.innerText = "Next Step";
+                nextBtn.style.backgroundColor = ""; // Reset to CSS default
+            }
+        }
+
+        // --- DATA SAVER ---
+        function saveData(step) {
+            if (step === 1) {
+                formData.fullName = document.getElementById('fullName').value;
+                formData.email = document.getElementById('email').value;
+            } else if (step === 2) {
+                formData.phone = document.getElementById('phone').value;
+                formData.github = document.getElementById('github').value;
+            } else if (step === 3) {
+                formData.experience = document.getElementById('experience').value;
+                // Collect checked boxes
+                const checkboxes = document.querySelectorAll('#skillsGroup input[type="checkbox"]:checked');
+                formData.skills = Array.from(checkboxes).map(cb => cb.value);
+            }
+        }
+
+        // --- VALIDATION LOGIC ---
+        function validateStep(step) {
+            let isValid = true;
+
+            const showError = (input, show) => {
+                const errMsg = input.parentElement.querySelector('.error-message');
+                if (show) {
+                    input.classList.add('error');
+                    if(errMsg) errMsg.classList.add('show');
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                    if(errMsg) errMsg.classList.remove('show');
+                }
+            };
+
+            if (step === 1) {
+                const name = document.getElementById('fullName');
+                const email = document.getElementById('email');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                showError(name, name.value.trim() === "");
+                showError(email, !emailRegex.test(email.value));
+            } 
+            else if (step === 2) {
+                const phone = document.getElementById('phone');
+                const github = document.getElementById('github');
+                const phoneRegex = /^\d{10}$/; 
+
+                showError(phone, !phoneRegex.test(phone.value));
+                showError(github, !github.value.startsWith('http'));
+            } 
+            else if (step === 3) {
+                const exp = document.getElementById('experience');
+                showError(exp, exp.value === "");
+
+                // Checkbox validation
+                const checkboxes = document.querySelectorAll('#skillsGroup input[type="checkbox"]:checked');
+                const skillError = document.getElementById('skillError');
+                if (checkboxes.length === 0) {
+                    skillError.classList.add('show');
+                    isValid = false;
+                } else {
+                    skillError.classList.remove('show');
+                }
+            }
+
+            return isValid;
+        }
+    </script>
+</body>
+</html>
