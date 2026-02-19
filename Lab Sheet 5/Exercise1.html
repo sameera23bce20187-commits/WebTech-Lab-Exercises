@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Management System</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+        table { margin-top: 15px; }
+        #message { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>Employee Management System</h2>
+
+<button onclick="loadEmployees()">Load Employees</button>
+
+<h3>Add Employee</h3>
+ID: <input type="text" id="empId">
+Name: <input type="text" id="empName">
+Dept: <input type="text" id="empDept">
+Salary: <input type="text" id="empSalary">
+<button onclick="addEmployee()">Add</button>
+
+<h3>Employee Records</h3>
+<table id="employeeTable">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>Salary</th>
+        <th>Actions</th>
+    </tr>
+</table>
+
+<div id="message"></div>
+
+<script>
+
+let xmlDoc = null;
+
+// ================= LOAD EMPLOYEES =================
+function loadEmployees() {
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", "Exercise1.xml", true);
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+
+            if (xhr.status === 200) {
+
+                if (!xhr.responseXML) {
+                    showMessage("Malformed XML file", "red");
+                    return;
+                }
+
+                xmlDoc = xhr.responseXML;
+                displayEmployees();
+
+            } else {
+                showMessage("Error loading XML file", "red");
+            }
+        }
+    };
+
+    xhr.send();
+}
+
+// ================= DISPLAY EMPLOYEES =================
+function displayEmployees() {
+
+    let table = document.getElementById("employeeTable");
+
+    // Clear old rows
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Salary</th>
+            <th>Actions</th>
+        </tr>
+    `;
+
+    let employees = xmlDoc.getElementsByTagName("employee");
+
+    if (employees.length === 0) {
+        showMessage("No employees found", "orange");
+        return;
+    }
+
+    for (let i = 0; i < employees.length; i++) {
+
+        let id = employees[i].getElementsByTagName("id")[0].textContent;
+        let name = employees[i].getElementsByTagName("name")[0].textContent;
+        let dept = employees[i].getElementsByTagName("department")[0].textContent;
+        let salary = employees[i].getElementsByTagName("salary")[0].textContent;
+
+        let row = table.insertRow(-1);
+
+        row.insertCell(0).innerHTML = id;
+        row.insertCell(1).innerHTML = name;
+        row.insertCell(2).innerHTML = dept;
+        row.insertCell(3).innerHTML = salary;
+        row.insertCell(4).innerHTML = `
+            <button onclick="updateEmployee('${id}')">Update</button>
+            <button onclick="deleteEmployee('${id}')">Delete</button>
+        `;
+    }
+
+    showMessage("Employees loaded successfully", "green");
+}
+
+// ================= ADD EMPLOYEE =================
+function addEmployee() {
+
+    if (!xmlDoc) {
+        showMessage("Load XML first", "red");
+        return;
+    }
+
+    let id = document.getElementById("empId").value;
+    let name = document.getElementById("empName").value;
+    let dept = document.getElementById("empDept").value;
+    let salary = document.getElementById("empSalary").value;
+
+    if (!id || !name || !dept || !salary) {
+        showMessage("All fields required", "red");
+        return;
+    }
+
+    let newEmployee = xmlDoc.createElement("employee");
+
+    let idNode = xmlDoc.createElement("id");
+    idNode.textContent = id;
+
+    let nameNode = xmlDoc.createElement("name");
+    nameNode.textContent = name;
+
+    let deptNode = xmlDoc.createElement("department");
+    deptNode.textContent = dept;
+
+    let salaryNode = xmlDoc.createElement("salary");
+    salaryNode.textContent = salary;
+
+    newEmployee.appendChild(idNode);
+    newEmployee.appendChild(nameNode);
+    newEmployee.appendChild(deptNode);
+    newEmployee.appendChild(salaryNode);
+
+    xmlDoc.getElementsByTagName("employees")[0].appendChild(newEmployee);
+
+    displayEmployees();
+    showMessage("Employee added successfully", "green");
+}
+
+// ================= UPDATE EMPLOYEE =================
+function updateEmployee(empId) {
+
+    let employees = xmlDoc.getElementsByTagName("employee");
+
+    for (let i = 0; i < employees.length; i++) {
+
+        let id = employees[i].getElementsByTagName("id")[0].textContent;
+
+        if (id === empId) {
+
+            let newSalary = prompt("Enter new salary:");
+            let newDept = prompt("Enter new department:");
+
+            if (newSalary)
+                employees[i].getElementsByTagName("salary")[0].textContent = newSalary;
+
+            if (newDept)
+                employees[i].getElementsByTagName("department")[0].textContent = newDept;
+
+            displayEmployees();
+            showMessage("Employee updated successfully", "green");
+            return;
+        }
+    }
+
+    showMessage("Employee not found", "red");
+}
+
+// ================= DELETE EMPLOYEE =================
+function deleteEmployee(empId) {
+
+    let employees = xmlDoc.getElementsByTagName("employee");
+
+    for (let i = 0; i < employees.length; i++) {
+
+        let id = employees[i].getElementsByTagName("id")[0].textContent;
+
+        if (id === empId) {
+
+            employees[i].parentNode.removeChild(employees[i]);
+            displayEmployees();
+            showMessage("Employee deleted successfully", "green");
+            return;
+        }
+    }
+
+    showMessage("Employee not found", "red");
+}
+
+// ================= MESSAGE FUNCTION =================
+function showMessage(msg, color) {
+    let messageDiv = document.getElementById("message");
+    messageDiv.style.color = color;
+    messageDiv.innerHTML = msg;
+}
+
+</script>
+
+</body>
+</html>

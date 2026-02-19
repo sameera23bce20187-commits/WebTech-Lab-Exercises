@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Inventory System</title>
+    <style>
+        body { font-family: Arial; }
+
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+
+        table { margin-top: 15px; width: 100%; }
+
+        .low-stock {
+            background-color: #ffcccc;
+            font-weight: bold;
+        }
+
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Product Inventory System</h2>
+
+<button onclick="loadInventory()">Load Inventory</button>
+
+<h3>Add Product</h3>
+ID: <input type="text" id="prodId">
+Name: <input type="text" id="prodName">
+Category: <input type="text" id="prodCategory">
+Price: <input type="number" id="prodPrice">
+Stock: <input type="number" id="prodStock">
+<button onclick="addProduct()">Add</button>
+
+<h3>Search by Category</h3>
+<input type="text" id="searchCategory">
+<button onclick="searchByCategory()">Search</button>
+<button onclick="displayProducts()">Reset</button>
+
+<h3>Inventory Table</h3>
+<table id="inventoryTable">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Actions</th>
+    </tr>
+</table>
+
+<h3>Total Inventory Value: ₹ <span id="totalValue">0</span></h3>
+
+<div id="message"></div>
+
+<script>
+
+let inventoryData = [];
+
+// ================= LOAD INVENTORY =================
+function loadInventory() {
+
+    fetch("Exercise4.json")   // UPDATED FILE NAME
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Failed to load JSON file");
+            }
+
+            return response.json();
+        })
+        .then(data => {
+
+            inventoryData = data;
+            displayProducts();
+        })
+        .catch(error => {
+            showMessage("Error: " + error.message, "red");
+        });
+}
+
+// ================= DISPLAY PRODUCTS =================
+function displayProducts(filteredData = null) {
+
+    let table = document.getElementById("inventoryTable");
+
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+        </tr>
+    `;
+
+    let dataToDisplay = filteredData || inventoryData;
+
+    dataToDisplay.forEach(product => {
+
+        let row = table.insertRow(-1);
+
+        if (product.stock < 5) {
+            row.classList.add("low-stock");
+        }
+
+        row.insertCell(0).innerHTML = product.id;
+        row.insertCell(1).innerHTML = product.name;
+        row.insertCell(2).innerHTML = product.category;
+        row.insertCell(3).innerHTML = product.price;
+        row.insertCell(4).innerHTML = product.stock;
+        row.insertCell(5).innerHTML = `
+            <button onclick="editProduct('${product.id}')">Edit</button>
+            <button onclick="deleteProduct('${product.id}')">Delete</button>
+        `;
+    });
+
+    calculateTotalValue(dataToDisplay);
+}
+
+// ================= ADD PRODUCT =================
+function addProduct() {
+
+    let id = document.getElementById("prodId").value.trim();
+    let name = document.getElementById("prodName").value.trim();
+    let category = document.getElementById("prodCategory").value.trim();
+    let price = document.getElementById("prodPrice").value;
+    let stock = document.getElementById("prodStock").value;
+
+    if (!id || !name || !category || price === "" || stock === "") {
+        showMessage("All fields are required", "red");
+        return;
+    }
+
+    if (price <= 0 || stock < 0) {
+        showMessage("Invalid price or stock value", "red");
+        return;
+    }
+
+    if (inventoryData.some(p => p.id === id)) {
+        showMessage("Product ID already exists", "red");
+        return;
+    }
+
+    inventoryData.push({
+        id: id,
+        name: name,
+        category: category,
+        price: Number(price),
+        stock: Number(stock)
+    });
+
+    displayProducts();
+    showMessage("Product added successfully", "green");
+}
+
+// ================= EDIT PRODUCT =================
+function editProduct(productId) {
+
+    let product = inventoryData.find(p => p.id === productId);
+
+    if (!product) {
+        showMessage("Product not found", "red");
+        return;
+    }
+
+    let newPrice = prompt("Enter new price:", product.price);
+    let newStock = prompt("Enter new stock:", product.stock);
+
+    if (newPrice !== null && newPrice > 0)
+        product.price = Number(newPrice);
+
+    if (newStock !== null && newStock >= 0)
+        product.stock = Number(newStock);
+
+    displayProducts();
+    showMessage("Product updated successfully", "green");
+}
+
+// ================= DELETE PRODUCT =================
+function deleteProduct(productId) {
+
+    let index = inventoryData.findIndex(p => p.id === productId);
+
+    if (index === -1) {
+        showMessage("Product not found", "red");
+        return;
+    }
+
+    inventoryData.splice(index, 1);
+
+    displayProducts();
+    showMessage("Product deleted successfully", "green");
+}
+
+// ================= SEARCH BY CATEGORY =================
+function searchByCategory() {
+
+    let category = document.getElementById("searchCategory").value.trim();
+
+    if (!category) {
+        showMessage("Enter category to search", "red");
+        return;
+    }
+
+    let filtered = inventoryData.filter(p =>
+        p.category.toLowerCase() === category.toLowerCase()
+    );
+
+    if (filtered.length === 0) {
+        showMessage("No products found", "orange");
+    }
+
+    displayProducts(filtered);
+}
+
+// ================= CALCULATE TOTAL VALUE =================
+function calculateTotalValue(data) {
+
+    let total = data.reduce((sum, product) =>
+        sum + (product.price * product.stock), 0);
+
+    document.getElementById("totalValue").innerText = total;
+}
+
+// ================= MESSAGE =================
+function showMessage(msg, color) {
+    let messageDiv = document.getElementById("message");
+    messageDiv.style.color = color;
+    messageDiv.innerHTML = msg;
+}
+
+</script>
+
+</body>
+</html>

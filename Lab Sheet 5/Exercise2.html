@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Book Tracker</title>
+    <style>
+        body { font-family: Arial; }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+        table { margin-top: 15px; width: 100%; }
+        #message { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>Library Book Tracker</h2>
+
+<button onclick="loadBooks()">Load Books</button>
+
+<h3>Add New Book</h3>
+ID: <input type="text" id="bookId">
+Title: <input type="text" id="bookTitle">
+Author: <input type="text" id="bookAuthor">
+Status:
+<select id="bookStatus">
+    <option value="Available">Available</option>
+    <option value="Issued">Issued</option>
+</select>
+<button onclick="addBook()">Add Book</button>
+
+<h3>Book Records</h3>
+<table id="bookTable">
+    <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Author</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+</table>
+
+<div id="message"></div>
+
+<script>
+
+let xmlDoc = null;
+
+// ================= LOAD XML USING AJAX =================
+function loadBooks() {
+
+    let xhr = new XMLHttpRequest();
+    xhr.open("GET", "Exercise2.xml", true);
+
+    xhr.onreadystatechange = function() {
+
+        if (xhr.readyState === 4) {
+
+            if (xhr.status === 200) {
+
+                if (!xhr.responseXML) {
+                    showMessage("Malformed XML file", "red");
+                    return;
+                }
+
+                xmlDoc = xhr.responseXML;
+                displayBooks();
+
+            } else {
+                showMessage("Error loading XML file", "red");
+            }
+        }
+    };
+
+    xhr.send();
+}
+
+// ================= DISPLAY BOOKS =================
+function displayBooks() {
+
+    let table = document.getElementById("bookTable");
+
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    `;
+
+    let books = xmlDoc.getElementsByTagName("book");
+
+    if (books.length === 0) {
+        showMessage("Library is empty", "orange");
+        return;
+    }
+
+    for (let i = 0; i < books.length; i++) {
+
+        let id = books[i].getElementsByTagName("id")[0].textContent;
+        let title = books[i].getElementsByTagName("title")[0].textContent;
+        let author = books[i].getElementsByTagName("author")[0].textContent;
+        let status = books[i].getElementsByTagName("status")[0].textContent;
+
+        let row = table.insertRow(-1);
+
+        row.insertCell(0).innerHTML = id;
+        row.insertCell(1).innerHTML = title;
+        row.insertCell(2).innerHTML = author;
+        row.insertCell(3).innerHTML = status;
+        row.insertCell(4).innerHTML = `
+            <button onclick="toggleStatus('${id}')">Toggle Status</button>
+            <button onclick="deleteBook('${id}')">Delete</button>
+        `;
+    }
+
+    showMessage("Book list updated", "green");
+}
+
+// ================= ADD NEW BOOK =================
+function addBook() {
+
+    if (!xmlDoc) {
+        showMessage("Load XML first", "red");
+        return;
+    }
+
+    let id = document.getElementById("bookId").value.trim();
+    let title = document.getElementById("bookTitle").value.trim();
+    let author = document.getElementById("bookAuthor").value.trim();
+    let status = document.getElementById("bookStatus").value;
+
+    // Validation
+    if (!id || !title || !author) {
+        showMessage("All fields are required", "red");
+        return;
+    }
+
+    let books = xmlDoc.getElementsByTagName("book");
+
+    // Check duplicate ID
+    for (let i = 0; i < books.length; i++) {
+        if (books[i].getElementsByTagName("id")[0].textContent === id) {
+            showMessage("Book ID already exists", "red");
+            return;
+        }
+    }
+
+    let newBook = xmlDoc.createElement("book");
+
+    let idNode = xmlDoc.createElement("id");
+    idNode.textContent = id;
+
+    let titleNode = xmlDoc.createElement("title");
+    titleNode.textContent = title;
+
+    let authorNode = xmlDoc.createElement("author");
+    authorNode.textContent = author;
+
+    let statusNode = xmlDoc.createElement("status");
+    statusNode.textContent = status;
+
+    newBook.appendChild(idNode);
+    newBook.appendChild(titleNode);
+    newBook.appendChild(authorNode);
+    newBook.appendChild(statusNode);
+
+    xmlDoc.getElementsByTagName("library")[0].appendChild(newBook);
+
+    displayBooks();
+    showMessage("Book added successfully", "green");
+}
+
+// ================= UPDATE STATUS =================
+function toggleStatus(bookId) {
+
+    let books = xmlDoc.getElementsByTagName("book");
+
+    for (let i = 0; i < books.length; i++) {
+
+        let id = books[i].getElementsByTagName("id")[0].textContent;
+
+        if (id === bookId) {
+
+            let statusNode = books[i].getElementsByTagName("status")[0];
+
+            statusNode.textContent =
+                statusNode.textContent === "Available" ? "Issued" : "Available";
+
+            displayBooks();
+            showMessage("Availability updated", "green");
+            return;
+        }
+    }
+
+    showMessage("Book not found", "red");
+}
+
+// ================= DELETE BOOK =================
+function deleteBook(bookId) {
+
+    let books = xmlDoc.getElementsByTagName("book");
+
+    for (let i = 0; i < books.length; i++) {
+
+        let id = books[i].getElementsByTagName("id")[0].textContent;
+
+        if (id === bookId) {
+
+            books[i].parentNode.removeChild(books[i]);
+            displayBooks();
+            showMessage("Book deleted successfully", "green");
+            return;
+        }
+    }
+
+    showMessage("Book not found", "red");
+}
+
+// ================= MESSAGE FUNCTION =================
+function showMessage(msg, color) {
+    let messageDiv = document.getElementById("message");
+    messageDiv.style.color = color;
+    messageDiv.innerHTML = msg;
+}
+
+</script>
+
+</body>
+</html>

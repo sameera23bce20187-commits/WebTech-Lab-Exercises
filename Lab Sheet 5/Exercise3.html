@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Record System</title>
+    <style>
+        body { font-family: Arial; }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+            padding: 8px;
+        }
+        table { margin-top: 15px; width: 100%; }
+        #message { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>Student Record System</h2>
+
+<button onclick="loadStudents()">Load Students</button>
+
+<h3>Add Student</h3>
+ID: <input type="text" id="studentId">
+Name: <input type="text" id="studentName">
+Course: <input type="text" id="studentCourse">
+Marks: <input type="number" id="studentMarks">
+<button onclick="addStudent()">Add</button>
+
+<h3>Student Records</h3>
+<table id="studentTable">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Course</th>
+        <th>Marks</th>
+        <th>Actions</th>
+    </tr>
+</table>
+
+<div id="message"></div>
+
+<script>
+
+let studentsData = [];
+
+// ================= LOAD JSON USING FETCH =================
+function loadStudents() {
+
+    fetch("Exercise3.json")   // UPDATED FILE NAME
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Failed to load JSON file");
+            }
+
+            return response.json();
+        })
+        .then(data => {
+
+            studentsData = data;
+            displayStudents();
+
+        })
+        .catch(error => {
+            showMessage("Error: " + error.message, "red");
+        });
+}
+
+// ================= DISPLAY STUDENTS =================
+function displayStudents() {
+
+    let table = document.getElementById("studentTable");
+
+    table.innerHTML = `
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Marks</th>
+            <th>Actions</th>
+        </tr>
+    `;
+
+    if (studentsData.length === 0) {
+        showMessage("No student records found", "orange");
+        return;
+    }
+
+    studentsData.forEach(student => {
+
+        let row = table.insertRow(-1);
+
+        row.insertCell(0).innerHTML = student.id;
+        row.insertCell(1).innerHTML = student.name;
+        row.insertCell(2).innerHTML = student.course;
+        row.insertCell(3).innerHTML = student.marks;
+        row.insertCell(4).innerHTML = `
+            <button onclick="updateStudent('${student.id}')">Update</button>
+            <button onclick="deleteStudent('${student.id}')">Delete</button>
+        `;
+    });
+
+    showMessage("Student list updated", "green");
+}
+
+// ================= ADD STUDENT =================
+function addStudent() {
+
+    let id = document.getElementById("studentId").value.trim();
+    let name = document.getElementById("studentName").value.trim();
+    let course = document.getElementById("studentCourse").value.trim();
+    let marks = document.getElementById("studentMarks").value;
+
+    if (!id || !name || !course || marks === "") {
+        showMessage("All fields are required", "red");
+        return;
+    }
+
+    if (marks < 0 || marks > 100) {
+        showMessage("Marks must be between 0 and 100", "red");
+        return;
+    }
+
+    if (studentsData.some(student => student.id === id)) {
+        showMessage("Student ID already exists", "red");
+        return;
+    }
+
+    let newStudent = {
+        id: id,
+        name: name,
+        course: course,
+        marks: Number(marks)
+    };
+
+    studentsData.push(newStudent);
+
+    displayStudents();
+    showMessage("Student added successfully", "green");
+}
+
+// ================= UPDATE STUDENT =================
+function updateStudent(studentId) {
+
+    let student = studentsData.find(s => s.id === studentId);
+
+    if (!student) {
+        showMessage("Student not found", "red");
+        return;
+    }
+
+    let newCourse = prompt("Enter new course:", student.course);
+    let newMarks = prompt("Enter new marks:", student.marks);
+
+    if (newCourse !== null && newCourse.trim() !== "")
+        student.course = newCourse;
+
+    if (newMarks !== null && newMarks !== "") {
+
+        if (newMarks < 0 || newMarks > 100) {
+            showMessage("Marks must be between 0 and 100", "red");
+            return;
+        }
+
+        student.marks = Number(newMarks);
+    }
+
+    displayStudents();
+    showMessage("Student updated successfully", "green");
+}
+
+// ================= DELETE STUDENT =================
+function deleteStudent(studentId) {
+
+    let index = studentsData.findIndex(s => s.id === studentId);
+
+    if (index === -1) {
+        showMessage("Student not found", "red");
+        return;
+    }
+
+    studentsData.splice(index, 1);
+
+    displayStudents();
+    showMessage("Student deleted successfully", "green");
+}
+
+// ================= MESSAGE FUNCTION =================
+function showMessage(msg, color) {
+    let messageDiv = document.getElementById("message");
+    messageDiv.style.color = color;
+    messageDiv.innerHTML = msg;
+}
+
+</script>
+
+</body>
+</html>
