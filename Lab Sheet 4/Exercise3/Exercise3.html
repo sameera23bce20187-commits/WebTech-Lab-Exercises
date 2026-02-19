@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Management</title>
+</head>
+<body>
+
+<h2>Student Management System</h2>
+
+<form id="studentForm">
+  <input type="text" id="id" placeholder="Student ID" required>
+  <input type="text" id="name" placeholder="Name" required>
+  <input type="text" id="dept" placeholder="Department" required>
+  <input type="number" id="marks" placeholder="Marks" required>
+  <button type="submit">Save</button>
+</form>
+
+<p id="message"></p>
+
+<table border="1">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Department</th>
+      <th>Marks</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="studentTable"></tbody>
+</table>
+
+<script src="Exercise3.js"></script>
+</body>
+</html>
